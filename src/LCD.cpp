@@ -5,8 +5,7 @@ LCD::LCD(ShiftReg* dataReg, uint8_t e, uint8_t rw, uint8_t rs)
 : dataReg(dataReg), e(e), rw(rw), rs(rs)
 {
     gpioSetup();
-
-    // set up LCD
+    awaken();
 }
 
 // general setup of GPIO pins
@@ -28,40 +27,49 @@ void LCD::gpioSetup() {
     gpio_put(rs, 0);
 }
 
-void LCD::sendByte(uint8_t byte) {
+// go through wake-up procedure shown in datasheet example.
+void LCD::awaken() {
+    command(0x30);  // wake up #1
+    sleep_ms(10);        // busy flag not available, must wait 5ms
+    command(0x30);  // wake up #2
+    sleep_ms(10);      // busy flag not available, must wait 160us
+    command(0x30);  // wake up #3
+    sleep_us(250);      // busy flag not available, must wait 160us
+}
+
+// pulse enable pin for ~1000ns
+void LCD::pulseEnable() {
+    gpio_put(e, 1);
+    sleep_us(5);
+    gpio_put(e, 0);
+    sleep_us(5);
+}
+
+// send command to lcd
+void LCD::command(uint8_t byte) {
+    // put data out on data bus
     dataReg->putByte(byte);
+
+    // send command to lcd
+    gpio_put(rs, 0);    // send instruction
+    gpio_put(rw, 0);    // write
+    pulseEnable();      // pulse enable pin
 }
 
-void LCD::setRS() { gpio_put(rs, 1); }
-void LCD::setRW() { gpio_put(rw, 1); }
-void LCD::setE()  { gpio_put(e,  1); }
-void LCD::unsetRS() { gpio_put(rs, 0); }
-void LCD::unsetRW() { gpio_put(rw, 0); }
-void LCD::unsetE()  { gpio_put(e,  0); }
-
-void LCD::functionSet(uint8_t byte) {
-    // unset RS and RW and set enable
-    unsetRS();
-    unsetRW();
-    setE();
-
-    // write masked byte to data bus
-    dataReg->putByte(0x20 & byte);
-    sleep_us(1);
-
-    // unset enable
-    unsetE();
+// send character to lcd
+void LCD::writeChar(char c) {
+    // put data out on data bus
+    dataReg->putByte(c);
+    
+    // write character to lcd
+    gpio_put(rs, 1);    // send data
+    gpio_put(rw, 0);    // write
+    pulseEnable();      // pulse enable pin
+    sleep_us(50);
+    gpio_put(rs, 0);
 }
 
-void LCD::entryModeSet(uint8_t byte) {
-    // unset RS and RW and set enable
-    unsetRS();
-    unsetRW();
-    setE();
-
-    // write masked byte to data bus
-    dataReg->putByte(0x04 & byte);
-
-    // unset enable
-    unsetE();
+void LCD::writeString(char* c) {
+    while (*c != '\0')
+        writeChar(*c++);
 }

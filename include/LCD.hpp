@@ -3,6 +3,8 @@
 #include <cstdint>
 #include "ShiftReg.hpp"
 
+#define LCD_CMD_DELAY_US 10
+
 class LCD {
 private:
     uint8_t e;
@@ -12,19 +14,16 @@ private:
 
 private:
     void gpioSetup();
-    void setRS();
-    void setRW();
-    void setE();
-    void unsetRS();
-    void unsetRW();
-    void unsetE();
+    void awaken();
+    void pulseEnable();
 
 public:
     LCD(ShiftReg* dataReg, uint8_t e, uint8_t rw, uint8_t rs);
 
     // data methods
-    void sendByte(uint8_t byte);
-    void putByte(uint8_t byte);
+    void command(uint8_t byte);
+    void writeChar(char c);
+    void writeString(char* c);
     void functionSet(uint8_t byte);
     void entryModeSet(uint8_t byte);
 

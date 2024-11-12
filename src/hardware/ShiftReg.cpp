@@ -1,4 +1,4 @@
-#include "ShiftReg.hpp"
+#include "hardware/ShiftReg.hpp"
 #include "pico/stdlib.h"
 
 ShiftReg::ShiftReg(uint8_t ser, uint8_t rclk, uint8_t srclk)

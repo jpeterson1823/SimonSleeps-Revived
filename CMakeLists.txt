@@ -52,8 +52,9 @@ pico_sdk_init()
 add_executable(SimonSleeps
     SimonSleeps.cpp
     
-    src/ShiftReg.cpp
-    src/LCD.cpp
+    src/hardware/ShiftReg.cpp
+    src/hardware/LCD.cpp
+    src/logic/LCDMessage.cpp
 )
 
 pico_set_program_name(SimonSleeps "SimonSleeps")

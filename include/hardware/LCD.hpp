@@ -35,6 +35,7 @@ public:
     LCD(ShiftReg* dataReg, uint8_t e, uint8_t rw, uint8_t rs);
 
     // lcd setup methods
+    void defaultSetup();
     void functionSet(bool byteBusMode, bool twoLineMode, bool smallFontMode);
     void entryModeSet(bool incDDRAM, bool shiftDisplay);
     void displaySet(bool displayOn, bool cursorOn, bool cursorBlink);
@@ -47,7 +48,7 @@ public:
     void writeMessage(LCDMessage msg);
 
     // control methods
-    void clearDisplay();
-    void returnHome();
+    void clear();
+    void cursorHome();
     void setCursorPos(bool line, uint8_t index);
 };

@@ -39,6 +39,21 @@ void LCD::awaken() {
     sleep_us(250);      // busy flag not available, must wait 160us
 }
 
+/**
+ * Sets LCD to:
+ *  - 8-bit bus
+ *  - 2 lines
+ *  - 5x8 dot font
+ *  - display, cursor, and cursor blink ON
+ *  - left-to-right writing
+ *  - display shift DISABLED
+ */
+void LCD::defaultSetup() {
+    functionSet(true, true, true);
+    displaySet(true, true, true);
+    entryModeSet(true, false);
+}
+
 // pulse enable pin for ~1000ns
 void LCD::pulseEnable() {
     gpio_put(e, 1);
@@ -166,14 +181,14 @@ void LCD::writeMessage(LCDMessage msg) {
     writeString(msg.getLine2());
 }
 
-// clears lcd screen
-void LCD::clearDisplay() {
+// clears lcd screen by clearing DDRAM
+void LCD::clear() {
     command(0x01);
     sleep_us(1700);     // takes 1.52ms, delay a little longer
 }
 
-// returns cursor to home position
-void LCD::returnHome() {
+// returns cursor to home position by setting address couter to zero
+void LCD::cursorHome() {
     command(0x02);
     sleep_us(1700);     // takes 1.52ms, delay a little longer
 }
